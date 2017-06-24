@@ -16,7 +16,7 @@ int g_PVOutputDnsStatus = 0;
 IPAddress g_PVOutputIP;
 
 /**** Local Variables ***/
-static char s_webData[70];
+char s_webData[256];
 
 // This function updates all registered sensors to pvoutput
 void PVOutputSend()
@@ -51,21 +51,33 @@ void PVOutputSend()
     if(res == 1) // connection successfull
     {
       DBG_PVO(Serial.println("PVOutputSend: Connection success!");)
-           
-      pvout << F("GET /service/r2/addstatus.jsp");
-      pvout << F("?key=" PVOUTPUT_API_KEY);
-      pvout << F("&sid=") << sid;
-      sprintf(s_webData, "&d=%04d%02d%02d", year(lvTime),month(lvTime),day(lvTime));
-      pvout << s_webData;
-      sprintf(s_webData, "&t=%02d:%02d", hour(lvTime),minute(lvTime));
-      pvout << s_webData;
+      char *lvBuf = s_webData;
+
+      //pvout << F("GET /service/r2/addstatus.jsp");
+      lvBuf += sprintf(lvBuf, "GET /service/r2/addstatus.jsp");
+      //pvout << F("?key=" PVOUTPUT_API_KEY);
+      lvBuf += sprintf(lvBuf, "?key=%s", PVOUTPUT_API_KEY);
+//      pvout << F("&sid=") << sid;
+      lvBuf += sprintf(lvBuf, "&sid=%u", sid);
+//      sprintf(s_webData, "&d=%04d%02d%02d", year(lvTime),month(lvTime),day(lvTime));
+      lvBuf += sprintf(lvBuf, "&d=%04d%02d%02d", year(lvTime),month(lvTime),day(lvTime));
+//      pvout << s_webData;
+//      sprintf(s_webData, "&t=%02d:%02d", hour(lvTime),minute(lvTime));
+      lvBuf += sprintf(lvBuf, "&t=%02d:%02d", hour(lvTime),minute(lvTime));
+//      pvout << s_webData;
       
-      pvout << "&v1=" << MeterProduction.EnergyToday;      // v1: Energy Generation
-      pvout << "&v2=" << MeterProduction.PowerPeak;        // v2: Power Generation
-      pvout << "&v3=" << MeterConsumption.EnergyToday;     // v3: Energy Consumption
-      pvout << "&v4=" << MeterConsumption.PowerAverage;    // v4: Power Consumption    
+//      pvout << "&v1=" << MeterProduction.EnergyToday;      // v1: Energy Generation
+      lvBuf += sprintf(lvBuf, "&v1=%ld", MeterProduction.EnergyToday); // v1: Energy Generation
+//      pvout << "&v2=" << MeterProduction.PowerPeak;        // v2: Power Generation
+      lvBuf += sprintf(lvBuf, "&v2=%ld", MeterProduction.PowerPeak); // v2: Power Generation
+//      pvout << "&v3=" << MeterConsumption.EnergyToday;     // v3: Energy Consumption
+      lvBuf += sprintf(lvBuf, "&v3=%ld", MeterConsumption.EnergyToday); // v3: Energy Consumption
+//      pvout << "&v4=" << MeterConsumption.PowerAverage;    // v4: Power Consumption    
+      lvBuf += sprintf(lvBuf, "&v4=%ld", MeterConsumption.PowerAverage); // v4: Power Consumption
       
-      pvout << endl << F("Host: pvoutput.org") << endl << endl;
+//      pvout << endl << F("Host: pvoutput.org") << endl << endl;
+      lvBuf += sprintf(lvBuf, "\nHost: pvoutput.org\n\n");
+      pvout << s_webData;
       
       // give pvoutput some time to process the request
       delay(500);

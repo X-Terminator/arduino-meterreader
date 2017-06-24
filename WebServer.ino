@@ -16,7 +16,7 @@
 /**** Local Variables  ***/
 EthernetServer s_WebServer(WEB_SERVER_PORT);  // port changed from 80 to 555
 
-
+extern char s_webData[256];
 
 void WebServerInit()
 {
@@ -190,6 +190,7 @@ void _WebServerShowStatus(EthernetClient client)
     }
     client << F("</table>PvOutput error: ") << g_PVOutputResponse << " @ " << DateTime(g_PVOutputResponseTime) << br;
     client << F("PvOutput DNS status: ") << g_PVOutputDnsStatus << br;
+    client << F("PvOutput Request: ") << br << s_webData << br;
 
 }
 

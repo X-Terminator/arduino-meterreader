@@ -80,6 +80,7 @@ void PulseMeter::Init()
     ResetCounters(true, true, true, true, true);
     Save();
   }
+  
   CalculateActuals(true);
   ResetPowerAverage();
 //  m_UpdateActuals = true;
@@ -178,8 +179,8 @@ void PulseMeter::CalculateActuals(bool inForceUpdate)
 {
 
     unsigned long lvTimeSinceLastPulse = millis() - m_LastPulseTime;
-    // Was the last PulseMeter pulse more than 5 minutes ago?
-    if (lvTimeSinceLastPulse > (300000)) // no pulse for 5+ minutes (< 12 Watt)
+    // Was the last PulseMeter pulse more than 50 minutes ago?
+    if (lvTimeSinceLastPulse > (3000000)) // no pulse for 50+ minutes (< 12 Watt)
     {
       PowerActual = 0;  // then we have no output
       m_PulseInterval = 0;
