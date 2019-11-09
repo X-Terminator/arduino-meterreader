@@ -171,89 +171,106 @@ void DisplayUpdate()
   {
     if (s_DisplayState == STATE_DISP_NORMAL)
     {
-        unsigned long lvWattProd, lvWattCons, lvWattHourProd, lvWattHourCons, lvTemp;
+        unsigned long lvWattProd, lvWattProd2, lvWattCons, lvWattHourProd, lvWattHourProd2, lvWattHourCons, lvTemp;
         signed long lvWattNet, lvWattHourNet;
-  
         
         lvWattProd = MeterProduction.PowerActual;
         lvWattHourProd = MeterProduction.EnergyToday;
+
+        lvWattProd2 = MeterProduction2.PowerActual;
+        lvWattHourProd2 = MeterProduction2.EnergyToday;
   
         lvWattCons = MeterConsumption.PowerActual;
         lvWattHourCons = MeterConsumption.EnergyToday;
         
-        lvWattNet = (signed long)lvWattCons - lvWattProd;                  // Import/Export
-        lvWattHourNet = (signed long)lvWattHourCons - lvWattHourProd;      // Import/Export
+        lvWattNet = (signed long)lvWattCons - lvWattProd - lvWattProd2;                      // Import/Export
+        lvWattHourNet = (signed long)lvWattHourCons - lvWattHourProd - lvWattHourProd2;      // Import/Export
         
         MeterProduction.MeterUpdated = false;
         DisplayCursor(CUR_LINE0);
         // "Prod. 9999W  99.9kWh"
-        Serial1.write("Prod:");
+        Serial1.write("Huis:");
         DisplayMeterValues(lvWattProd, lvWattHourProd, false);
+
+        DisplayCursor(CUR_LINE1);
+        // "Prd2. 9999W  99.9kWh"
+        Serial1.write("Grge:");
+        DisplayMeterValues(lvWattProd2, lvWattHourProd2, false);
         
         // Consumption
-        DisplayCursor(CUR_LINE1);
+        DisplayCursor(CUR_LINE2);
         // "Verb: 9999W  99.9kWh"
         Serial1.write("Verb:");
         DisplayMeterValues(lvWattCons, lvWattHourCons, false);
         
         // Netto
-        DisplayCursor(CUR_LINE2);      
+        DisplayCursor(CUR_LINE3);      
         // "Tot.:+9999W +99.9kWh"
         Serial1.write("Tot.:");
         DisplayMeterValues(lvWattNet, lvWattHourNet, true);
         
         // Date & Time
-        DisplayCursor(CUR_LINE3);
+        //DisplayCursor(CUR_LINE3);
         // "DD-MM-YYYY  HH:mm:ss"
-        Serial1.write(DateTime(lvTime)); //"-");
+        //Serial1.write(DateTime(lvTime)); //"-");
     }
     else if ((s_DisplayState >= STATE_DISP_WEEK) && (s_DisplayState <= STATE_DISP_TOTAL))
     {   
-      long lvEnergyNet, lvEnergyProd, lvEnergyCons;
+      long lvEnergyNet, lvEnergyProd, lvEnergyProd2, lvEnergyCons;
   
       DisplayCursor(CUR_LINE3);    
       switch(s_DisplayState)
       {
         case STATE_DISP_WEEK:
           lvEnergyProd = MeterProduction.EnergyWeek;
+          lvEnergyProd2 = MeterProduction2.EnergyWeek;
           lvEnergyCons = MeterConsumption.EnergyWeek;
           Serial1.write("WEEK");     
           break;
         case STATE_DISP_MONTH:
           lvEnergyProd = MeterProduction.EnergyMonth;
+          lvEnergyProd2 = MeterProduction2.EnergyMonth;
           lvEnergyCons = MeterConsumption.EnergyMonth;
           Serial1.write("MAAND ");
           Serial1.print(month());
           break;
         case STATE_DISP_YEAR:
           lvEnergyProd = MeterProduction.EnergyYear;
+          lvEnergyProd2 = MeterProduction2.EnergyYear;
           lvEnergyCons = MeterConsumption.EnergyYear;
           Serial1.write("JAAR ");     
           Serial1.print(year());        
           break;
         case STATE_DISP_TOTAL:
           lvEnergyProd = MeterProduction.EnergyTotal;
+          lvEnergyProd2 = MeterProduction2.EnergyTotal;
           lvEnergyCons = MeterConsumption.EnergyTotal;
           Serial1.write("TOTAAL");     
           break;        
       }
-      lvEnergyNet = (lvEnergyCons-lvEnergyProd);
+      lvEnergyNet = (lvEnergyCons-lvEnergyProd-lvEnergyProd2);
       
       // Production    
       // "Prod:   99999.999kWh"
       DisplayCursor(CUR_LINE0);
-      Serial1.write("Prod:   ");
+      Serial1.write("Huis:   ");
       DisplayMeterTotalValue(lvEnergyProd);
+
+      // Production2    
+      // "Prod:   99999.999kWh"
+      DisplayCursor(CUR_LINE1);
+      Serial1.write("Grge:   ");
+      DisplayMeterTotalValue(lvEnergyProd2);
       
       // Consumption
-      DisplayCursor(CUR_LINE1);
+      DisplayCursor(CUR_LINE2);
       Serial1.write("Verb:   ");
       DisplayMeterTotalValue(lvEnergyCons);    
       
       // Netto
-      DisplayCursor(CUR_LINE2);
-      Serial1.write("Tot.:   ");
-      DisplayMeterTotalValue(lvEnergyNet, true);
+      //DisplayCursor(CUR_LINE2);
+      //Serial1.write("Tot.:   ");
+      //DisplayMeterTotalValue(lvEnergyNet, true);
     }
     else if (s_DisplayState == STATE_DISP_DEBUG)
     {
@@ -264,6 +281,11 @@ void DisplayUpdate()
       Serial1.write(DateTime(g_TimeOfLastSync));
       DisplayCursor(CUR_LINE1);      
       Serial1.write(DateTime(g_PVOutputResponseTime));
+      // Date & Time
+      DisplayCursor(CUR_LINE2);
+      // "DD-MM-YYYY  HH:mm:ss"
+      Serial1.write(DateTime(lvTime)); //"-");
+
       DisplayCursor(CUR_LINE3);      
       Serial1.write("Uptime: ");
       Serial1.print(g_upTimeHours);
@@ -334,4 +356,3 @@ void DisplayClear()
   Serial1.write(0x51); 
   delay(100);
 }
-

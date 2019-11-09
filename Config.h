@@ -26,8 +26,7 @@ static byte EthSubnet[]    = { 255, 255, 255, 0 };
 
 //*****************************************************************
 // You can find your api-key in the PvOutput settings page, under api-settings
-#define PVOUTPUT_API_KEY        "4ea0bb4c35d3628dc4708feb20f08f2e3f09aa2b"
-#define PVOUTPUT_SYSTEM_ID      48034
+#include "PVoutput_key.h"
 
 //*****************************************************************
 // The update interval must match what you have set in the PvOutput settings
@@ -73,9 +72,9 @@ static byte EthSubnet[]    = { 255, 255, 255, 0 };
 //   3: The System ID of the corresponding pvOutput graph
 //   4: The number of the variable to log to (see software manual)
 //   5: The x-factor. The actual and total values will be divided by this number before  to pvoutput
-PulseMeter  MeterConsumption(METER1_PIN, 100, PVOUTPUT_SYSTEM_ID, _ISR_Meter1_Pulse, EE_METER_OFFSET(0));   // S0 sensor connected to pin 2, logging to variable 1 & 2 (production) of sid 2222
+PulseMeter  MeterConsumption(METER1_PIN, 1000, PVOUTPUT_SYSTEM_ID, _ISR_Meter1_Pulse, EE_METER_OFFSET(0));   // S0 sensor connected to pin 2, logging to variable 1 & 2 (production) of sid 2222
 PulseMeter  MeterProduction (METER2_PIN, 100, PVOUTPUT_SYSTEM_ID, _ISR_Meter2_Pulse, EE_METER_OFFSET(1));   // S0 sensor connected to pin 3, logging to variable 1 & 2 (production) of sid 2222. This will be added to S1
-PulseMeter  MeterProduction2(METER3_PIN, 100, PVOUTPUT_SYSTEM_ID2, _ISR_Meter3_Pulse, EE_METER_OFFSET(2));   // S0 sensor connected to pin 4, logging to variable 1 & 2 (production) of sid 2222. This will be added to S1
+PulseMeter  MeterProduction2(METER3_PIN, 1000, PVOUTPUT_SYSTEM_ID2, _ISR_Meter3_Pulse, EE_METER_OFFSET(2));   // S0 sensor connected to pin 4, logging to variable 1 & 2 (production) of sid 2222. This will be added to S1
 
 
 //*****************************************************************

@@ -17,7 +17,7 @@ extern void _ISR_Meter4_Pulse();
 class PulseMeter
 {
   public:
-    PulseMeter(byte pn, int p, int sid, ISR_Function ISR, byte ee_offset);// constructor
+    PulseMeter(byte pn, int p, unsigned long sid, ISR_Function ISR, byte ee_offset);// constructor
     void Init();                                 // initialize all variables
     void Loop(int m);                            // Called from main loop				
     void CalculateActuals(bool inForceUpdate = false);                     // Convert all counters according to the pulses per unit
@@ -46,7 +46,7 @@ class PulseMeter
     //long Today;                                  // Total for today in correct units. Reset at midnight
     //long Actual;                                 // Actual measured value in correct units
     //long Peak;                                   // Peak value of the last period
-    unsigned int SID;                            // System id where this sensor logs to
+    unsigned long SID;                            // System id where this sensor logs to
     byte Type;                                   // Variable of PvOutput to log to. See userdefs.h for explanation  
   
     //unsigned long TotalPulses;
@@ -83,6 +83,3 @@ class PulseMeter
 };
 
 #endif
-
-
-

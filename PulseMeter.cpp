@@ -35,7 +35,7 @@ void PulseMeter::_HandlePulse() {}
 */
 
 
-PulseMeter::PulseMeter(byte pn, int p, int sid, ISR_Function ISR, byte ee_offset)
+PulseMeter::PulseMeter(byte pn, int p, unsigned long sid, ISR_Function ISR, byte ee_offset)
 {
   ppu = p;
   SID = sid;
@@ -316,6 +316,3 @@ void _ISR_Meter4_Pulse()
 {
   Meters[3]->_HandlePulse();
 }
-
-
-

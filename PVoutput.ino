@@ -1,7 +1,6 @@
 
 /**** Defines ***/
-#define PVOUTPUT_API_KEY    "4ea0bb4c35d3628dc4708feb20f08f2e3f09aa2b"
-#define PVOUTPUT_SYSTEM_ID  48034
+#include "PVoutput_key.h"
 
 #ifdef DBG_PVO_ENABLE
   #define DBG_PVO(d)  {d}
@@ -40,32 +39,35 @@ void PVOutputSend()
   
   if (g_PVOutputDnsStatus == 1)
   {
-    unsigned int sid = PVOUTPUT_SYSTEM_ID;
+    unsigned long sids[2] = {PVOUTPUT_SYSTEM_ID, PVOUTPUT_SYSTEM_ID2};
   
     unsigned long lvWattProd, lvWattCons, lvWattHourProd, lvWattHourCons;
     time_t lvTime = now() - 30;  // 30 sec offset
 
      DBG_PVO(Serial.println("PVOutputSend: DNS resolve success!");)
-    
+    for (int i = 0; i < 2; i++)
+      {
     int res = pvout.connect(g_PVOutputIP, 80);
     if(res == 1) // connection successfull
     {
       DBG_PVO(Serial.println("PVOutputSend: Connection success!");)
       char *lvBuf = s_webData;
-
+      
+        unsigned long sid = sids[i];
       //pvout << F("GET /service/r2/addstatus.jsp");
       lvBuf += sprintf(lvBuf, "GET /service/r2/addstatus.jsp");
       //pvout << F("?key=" PVOUTPUT_API_KEY);
       lvBuf += sprintf(lvBuf, "?key=%s", PVOUTPUT_API_KEY);
 //      pvout << F("&sid=") << sid;
-      lvBuf += sprintf(lvBuf, "&sid=%u", sid);
+      lvBuf += sprintf(lvBuf, "&sid=%lu", sid);
 //      sprintf(s_webData, "&d=%04d%02d%02d", year(lvTime),month(lvTime),day(lvTime));
       lvBuf += sprintf(lvBuf, "&d=%04d%02d%02d", year(lvTime),month(lvTime),day(lvTime));
 //      pvout << s_webData;
 //      sprintf(s_webData, "&t=%02d:%02d", hour(lvTime),minute(lvTime));
       lvBuf += sprintf(lvBuf, "&t=%02d:%02d", hour(lvTime),minute(lvTime));
 //      pvout << s_webData;
-      
+      if (i == 0)
+      {
 //      pvout << "&v1=" << MeterProduction.EnergyToday;      // v1: Energy Generation
       lvBuf += sprintf(lvBuf, "&v1=%ld", MeterProduction.EnergyToday); // v1: Energy Generation
 //      pvout << "&v2=" << MeterProduction.PowerPeak;        // v2: Power Generation
@@ -74,7 +76,12 @@ void PVOutputSend()
       lvBuf += sprintf(lvBuf, "&v3=%ld", MeterConsumption.EnergyToday); // v3: Energy Consumption
 //      pvout << "&v4=" << MeterConsumption.PowerAverage;    // v4: Power Consumption    
       lvBuf += sprintf(lvBuf, "&v4=%ld", MeterConsumption.PowerAverage); // v4: Power Consumption
-      
+      }
+      else
+      {
+      lvBuf += sprintf(lvBuf, "&v1=%ld", MeterProduction2.EnergyToday); // v1: Energy Generation
+      lvBuf += sprintf(lvBuf, "&v2=%ld", MeterProduction2.PowerPeak); // v2: Power Generation
+      }
 //      pvout << endl << F("Host: pvoutput.org") << endl << endl;
       lvBuf += sprintf(lvBuf, "\nHost: pvoutput.org\n\n");
       pvout << s_webData;
@@ -99,13 +106,14 @@ void PVOutputSend()
         g_PVOutputResponseTime = now();
       }
       pvout.stop();
-    
     }
     else // cannnot connect
     {
       DBG_PVO(Serial.println("PVOutputSend: Connection failed!");)
       sprintf(g_PVOutputResponse, "No connection\0");
       g_PVOutputResponseTime = now();
+    }
+    delay(200);
     }
   }
   else
@@ -131,4 +139,3 @@ void _PVOutputResolveIP()
     g_PVOutputIP = remote_addr; // if success, copy
   }
 }
-
